@@ -18,14 +18,14 @@ class UserModel {
   });
 
   String store;
-  DateTime timestamp;
+  String timestamp;
   bool serverstatus;
   String page;
   Data data;
 
   factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
         store: json["store"],
-        timestamp: DateTime.parse(json["timestamp"]),
+        timestamp: json["timestamp"],
         serverstatus: json["serverstatus"],
         page: json["page"],
         data: Data.fromJson(json["data"]),
@@ -33,7 +33,7 @@ class UserModel {
 
   Map<String, dynamic> toJson() => {
         "store": store,
-        "timestamp": timestamp.toIso8601String(),
+        "timestamp": timestamp,
         "serverstatus": serverstatus,
         "page": page,
         "data": data.toJson(),
@@ -74,6 +74,7 @@ class Message {
     required this.groupToken,
     required this.groupPassword,
     required this.groupCreatetime,
+    required this.groupAds,
     required this.groupUpdatetime,
   });
 
@@ -83,6 +84,7 @@ class Message {
   String groupDetail;
   String groupToken;
   String groupPassword;
+  String groupAds;
   DateTime groupCreatetime;
   DateTime groupUpdatetime;
 
@@ -93,6 +95,7 @@ class Message {
         groupDetail: json["group_detail"],
         groupToken: json["group_token"],
         groupPassword: json["group_password"],
+        groupAds: json["group_ads"],
         groupCreatetime: DateTime.parse(json["group_createtime"]),
         groupUpdatetime: DateTime.parse(json["group_updatetime"]),
       );
@@ -104,6 +107,7 @@ class Message {
         "group_detail": groupDetail,
         "group_token": groupToken,
         "group_password": groupPassword,
+        "group_ads": groupAds,
         "group_createtime": groupCreatetime.toIso8601String(),
         "group_updatetime": groupUpdatetime.toIso8601String(),
       };

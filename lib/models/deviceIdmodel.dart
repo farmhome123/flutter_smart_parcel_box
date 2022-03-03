@@ -19,14 +19,14 @@ class DeviceIdModel {
   });
 
   String store;
-  DateTime timestamp;
+  String timestamp;
   bool serverstatus;
   String page;
   Data data;
 
   factory DeviceIdModel.fromJson(Map<String, dynamic> json) => DeviceIdModel(
         store: json["store"],
-        timestamp: DateTime.parse(json["timestamp"]),
+        timestamp: json["timestamp"],
         serverstatus: json["serverstatus"],
         page: json["page"],
         data: Data.fromJson(json["data"]),
@@ -34,7 +34,7 @@ class DeviceIdModel {
 
   Map<String, dynamic> toJson() => {
         "store": store,
-        "timestamp": timestamp.toIso8601String(),
+        "timestamp": timestamp,
         "serverstatus": serverstatus,
         "page": page,
         "data": data.toJson(),

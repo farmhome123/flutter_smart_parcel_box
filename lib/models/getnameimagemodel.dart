@@ -15,14 +15,14 @@ class GetNameModel {
   });
 
   final String store;
-  final DateTime timestamp;
+  final String timestamp;
   final bool serverstatus;
   final String page;
   final Data data;
 
   factory GetNameModel.fromJson(Map<String, dynamic> json) => GetNameModel(
         store: json["store"],
-        timestamp: DateTime.parse(json["timestamp"]),
+        timestamp: json["timestamp"],
         serverstatus: json["serverstatus"],
         page: json["page"],
         data: Data.fromJson(json["data"]),
@@ -30,7 +30,7 @@ class GetNameModel {
 
   Map<String, dynamic> toJson() => {
         "store": store,
-        "timestamp": timestamp.toIso8601String(),
+        "timestamp": timestamp,
         "serverstatus": serverstatus,
         "page": page,
         "data": data.toJson(),

@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
+import 'package:smartparcelbox/controllers/controller.dart';
 import 'package:smartparcelbox/models/deviceIdmodel.dart';
 import 'package:smartparcelbox/models/logImagemodel.dart';
 import 'package:http_parser/http_parser.dart';
@@ -15,14 +15,12 @@ import 'package:image/image.dart' as img;
 import '../../service.dart';
 
 class LockerScreen extends StatefulWidget {
-  final List<CameraDescription>? cameras;
   final String log_id;
   final String device_id;
   const LockerScreen({
     Key? key,
     required this.log_id,
     required this.device_id,
-    this.cameras,
   }) : super(key: key);
 
   @override
@@ -38,28 +36,15 @@ class _LockerScreenState extends State<LockerScreen> {
   Timer? _timer;
   var _start = 60.obs;
   DeviceIdModel? _deviceIdModel;
-  late CameraController controller_camera;
-  XFile? pictureFile;
 
-  // void getImage() async {
-  //   PickedFile? pickedFile = await ImagePicker().getImage(
-  //     source: ImageSource.camera,
-  //     preferredCameraDevice: CameraDevice.front,
-  //   );
-  //   if (pickedFile != null) {
-  //     setState(() {
-  //       _image = File(pickedFile.path);
-  //     });
-  //     await uploadImage();
-  //     // getNameFile();
-  //     // uploadImage();
-  //   }
-  // }
-  Future getImage() async {
-    XFile? image = pictureFile;
-    if (image != null) {
+  void getImage() async {
+  PickedFile? pickedFile = await ImagePicker().getImage(
+    source: ImageSource.camera,
+    preferredCameraDevice: CameraDevice.front,
+);
+    if (pickedFile != null) {
       setState(() {
-        _image = File(image.path);
+        _image = File(pickedFile.path);
       });
       await uploadImage();
       // getNameFile();
@@ -285,16 +270,6 @@ class _LockerScreenState extends State<LockerScreen> {
     super.initState();
     getNameFile();
     imagePicker = ImagePicker();
-    controller_camera = CameraController(
-      widget.cameras![1],
-      ResolutionPreset.medium,
-    );
-    controller_camera.initialize().then((_) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {});
-    });
   }
 
   @override
@@ -302,7 +277,6 @@ class _LockerScreenState extends State<LockerScreen> {
     if (_timer != null) {
       _timer!.cancel();
     }
-    controller_camera.dispose();
     super.dispose();
   }
 
@@ -339,23 +313,6 @@ class _LockerScreenState extends State<LockerScreen> {
               SizedBox(
                 height: size.height * 0.02,
               ),
-              // Padding(
-              //   padding: const EdgeInsets.all(8.0),
-              //   child: Center(
-              //     child: Container(
-              //       color: Colors.green[50],
-              //       width: size.width * 0.8,
-              //       height: size.height * 0.5,
-              //       child: _image == null
-              //           ? Center(
-              //               child: Text(
-              //               'กรุณาถ่ายรูปภาพผู้รับ',
-              //               style: TextStyle(fontSize: 20),
-              //             ))
-              //           : Image.file(_image!),
-              //     ),
-              //   ),
-              // ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Center(
@@ -364,7 +321,11 @@ class _LockerScreenState extends State<LockerScreen> {
                     width: size.width * 0.8,
                     height: size.height * 0.5,
                     child: _image == null
-                        ? CameraPreview(controller_camera)
+                        ? Center(
+                            child: Text(
+                            'กรุณาถ่ายรูปภาพผู้รับ',
+                            style: TextStyle(fontSize: 20),
+                          ))
                         : Image.file(_image!),
                   ),
                 ),
@@ -408,10 +369,8 @@ class _LockerScreenState extends State<LockerScreen> {
                       Icon(Icons.camera_alt)
                     ],
                   ),
-                  onPressed: () async {
+                  onPressed: () {
                     print('ถ่ายรูป');
-                    pictureFile = await controller_camera.takePicture();
-                    setState(() {});
                     getImage();
                   },
                 ),

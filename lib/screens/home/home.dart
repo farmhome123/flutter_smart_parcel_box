@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:camera/camera.dart';
+import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/route_manager.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,11 +17,11 @@ import 'package:smartparcelbox/models/devicemodel.dart';
 import 'package:smartparcelbox/screens/locker/depositlocker.dart';
 import 'package:smartparcelbox/screens/locker/locker.dart';
 import 'package:smartparcelbox/service.dart';
-import 'package:wakelock/wakelock.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:video_player/video_player.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  final List<CameraDescription>? cameras;
+  const HomeScreen({Key? key, this.cameras}) : super(key: key);
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -30,14 +33,161 @@ class _HomeScreenState extends State<HomeScreen> {
   late Timer timer;
   DeviceIdModel? _deviceIdModel;
   final box = GetStorage();
+  late Timer _timer;
+  int _start = 120;
+  late VideoPlayerController _videoPlayerController1;
+  late VideoPlayerController _videoPlayerController2;
+  ChewieController? _chewieController1;
+  ChewieController? _chewieController2;
+
+  // List<String> srcs = [
+  //   "https://assets.mixkit.co/videos/preview/mixkit-daytime-city-traffic-aerial-view-56-large.mp4",
+  //   "https://assets.mixkit.co/videos/preview/mixkit-a-girl-blowing-a-bubble-gum-at-an-amusement-park-1226-large.mp4"
+  // ];
+  Future<void> initializePlayer() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? urlads = await prefs.getString('group_ads');
+    print('url ADS ===> ### $urlads');
+    _videoPlayerController1 = VideoPlayerController.network(
+        "https://assets.mixkit.co/videos/preview/mixkit-daytime-city-traffic-aerial-view-56-large.mp4");
+    _videoPlayerController2 = VideoPlayerController.network(urlads.toString());
+    await Future.wait([
+      _videoPlayerController1.initialize(),
+      _videoPlayerController2.initialize()
+    ]);
+    _createChewieController1();
+    _createChewieController2();
+    setState(() {});
+  }
+
+  _createChewieController1() {
+    _chewieController1 = ChewieController(
+        videoPlayerController: _videoPlayerController1,
+        autoPlay: true,
+        looping: true,
+        fullScreenByDefault: false,
+        showControls: false);
+  }
+
+  _createChewieController2() {
+    _chewieController2 = ChewieController(
+        videoPlayerController: _videoPlayerController2,
+        autoPlay: true,
+        looping: true,
+        fullScreenByDefault: false,
+        showControls: false);
+    setState(() {});
+  }
+
+  _displayDialog(BuildContext context) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: false,
+      transitionDuration: Duration(milliseconds: 400),
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return FadeTransition(
+          opacity: animation,
+          child: ScaleTransition(
+            scale: animation,
+            child: child,
+          ),
+        );
+      },
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            setState(() {
+              _timer.cancel();
+              _start = 120;
+            });
+            Navigator.of(context).pop();
+            startTimer();
+          },
+          child: OrientationBuilder(
+            builder: (BuildContext context, Orientation orientation) {
+              if (orientation == Orientation.portrait) {
+                return Scaffold(
+                  body: Column(
+                    children: <Widget>[
+                      Expanded(
+                        child: Container(
+                          color: Colors.black,
+                          height: double.infinity,
+                          width: double.infinity,
+                          child: _chewieController2 != null &&
+                                  _chewieController2!
+                                      .videoPlayerController.value.isInitialized
+                              ? Chewie(
+                                  controller: _chewieController2!,
+                                )
+                              : Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: const [
+                                    CircularProgressIndicator(),
+                                    SizedBox(height: 20),
+                                    Text('Loading'),
+                                  ],
+                                ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              } else {
+                return Scaffold(
+                  body: Column(
+                    children: <Widget>[
+                      Expanded(
+                        child: Container(
+                          height: double.infinity,
+                          width: double.infinity,
+                          child: _chewieController1 != null &&
+                                  _chewieController1!
+                                      .videoPlayerController.value.isInitialized
+                              ? Chewie(
+                                  controller: _chewieController1!,
+                                )
+                              : Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: const [
+                                    CircularProgressIndicator(),
+                                    SizedBox(height: 20),
+                                    Text('Loading'),
+                                  ],
+                                ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+            },
+          ),
+        );
+      },
+    );
+  }
 
   void startTimer() {
-    timer = Timer.periodic(const Duration(minutes: 1), (_) {
-      // timedOut();
-      print('TimeOut');
-      // TimeOut();
-      Wakelock.enable();
-    });
+    const oneSec = const Duration(seconds: 1);
+    _timer = new Timer.periodic(
+      oneSec,
+      (Timer timer) {
+        print("_start ===> # ${_start}");
+        if (_start == 0) {
+          setState(() {
+            timer.cancel();
+            print('playyoutube !!!!!!');
+            _displayDialog(context);
+          });
+        } else {
+          setState(() {
+            _start--;
+          });
+        }
+      },
+    );
   }
 
   void getDevice() async {
@@ -73,46 +223,15 @@ class _HomeScreenState extends State<HomeScreen> {
         // print('getDeviceNew == 200');
         setState(() {
           _deviceModel_new = deviceModelFromJson(response.body);
-          if(jsonEncode(_deviceModel_new!.data.message) != jsonEncode(_deviceModel!.data.message)){
+          if (jsonEncode(_deviceModel_new!.data.message) !=
+              jsonEncode(_deviceModel!.data.message)) {
             _deviceModel = _deviceModel_new;
           }
         });
-      
       }
     } catch (e) {
       print(e);
     }
-  }
-
-  void TimeOut() async {
-    timer.cancel();
-    late String videoId;
-    videoId = YoutubePlayer.convertUrlToId(
-        "https://www.youtube.com/watch?v=VgOzPNQ4-Qw&list=RDMMVqbbrekbL3s&index=3")!;
-    print(videoId);
-    YoutubePlayerController _controller = YoutubePlayerController(
-      initialVideoId: videoId,
-      flags: YoutubePlayerFlags(
-        autoPlay: true,
-        mute: false,
-      ),
-    );
-    print('TimeOut');
-    showDialog(
-        context: context,
-        builder: (_) {
-          return Container(
-            child: Dialog(
-              child: Container(
-                height: MediaQuery.of(context).size.height / 0.5,
-                width: MediaQuery.of(context).size.width / 0.5,
-                child: YoutubePlayer(
-                  controller: _controller,
-                ),
-              ),
-            ),
-          );
-        });
   }
 
   void readDeviceId(deviceId) async {
@@ -155,7 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => DepositlockerScreen()));
+                        builder: (context) => DepositlockerScreen(cameras: widget.cameras,)));
               })
         ]).show();
   }
@@ -196,6 +315,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           builder: (context) => LockerScreen(
                                 log_id: _logID,
                                 device_id: _deviceID,
+                                cameras: widget.cameras,
                               )));
                 } else {
                   Fluttertoast.showToast(
@@ -229,13 +349,16 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> onPullToRefresh() async {
     await Future.delayed(Duration(milliseconds: 500));
     getDevice();
+    _timer.cancel();
+    _start = 120;
+    startTimer();
   }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    // startTimer();
+
     getDevice();
     box.remove('group_id');
     box.remove('device_id');
@@ -243,59 +366,74 @@ class _HomeScreenState extends State<HomeScreen> {
       debugPrint(timer.tick.toString());
       getDeviceNew();
     });
+    startTimer();
+    initializePlayer();
   }
 
   @override
   void dispose() {
     // TODO: implement dispose
     timer.cancel();
+    _timer.cancel();
+    _videoPlayerController1.dispose();
+    _videoPlayerController2.dispose();
+    _chewieController1?.dispose();
+    _chewieController2?.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
 
-    return SafeArea(
-      child: Scaffold(
-        drawer: const WidgetDrawer(),
-        backgroundColor: Colors.grey[300],
-        drawerEnableOpenDragGesture: false,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 3,
-          centerTitle: true,
-          actions: [
-            Builder(builder: (BuildContext context) {
-              return IconButton(
-                icon: Icon(
-                  Icons.menu,
-                  color: Colors.green[200],
-                ),
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
-                },
-              );
-            }),
+    return Scaffold(
+      drawer: const WidgetDrawer(),
+      backgroundColor: Colors.grey[300],
+      drawerEnableOpenDragGesture: false,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 3,
+        centerTitle: true,
+        actions: [
+          Builder(builder: (BuildContext context) {
+            return IconButton(
+              icon: Icon(
+                Icons.menu,
+                color: Colors.green[200],
+              ),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            );
+          }),
+        ],
+        title: Row(
+          children: [
+            Image.asset(
+              'assets/images/SOSSLOGO.png',
+              width: 50,
+            ),
+            const SizedBox(
+              width: 10,
+            ),
+            Text(
+              'Smart Parcel Box',
+              style: TextStyle(color: Colors.green[200]),
+            )
           ],
-          title: Row(
-            children: [
-              Image.asset(
-                'assets/images/SOSSLOGO.png',
-                width: 50,
-              ),
-              const SizedBox(
-                width: 10,
-              ),
-              Text(
-                'Smart Parcel Box',
-                style: TextStyle(color: Colors.green[200]),
-              )
-            ],
-          ),
         ),
-        body: _deviceModel?.data.status == true
-            ? RefreshIndicator(
-                onRefresh: onPullToRefresh,
+      ),
+      body: _deviceModel?.data.status == true
+          ? RefreshIndicator(
+              onRefresh: onPullToRefresh,
+              child: GestureDetector(
+                onTap: () {
+                  print("Tap Screen+++++++++++++++++ ");
+                  setState(() {
+                    _timer.cancel();
+                    _start = 120;
+                  });
+                  startTimer();
+                },
                 child: Container(
                   child: GridView.builder(
                       itemCount: _deviceModel!.data.message.length,
@@ -306,6 +444,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         return InkWell(
                           //////
                           onTap: () {
+                            print("Tap Screen+++++++++++++++++ ");
+                            setState(() {
+                              _timer.cancel();
+                              _start = 120;
+                            });
+                            startTimer();
                             print(
                                 'Device ===> ## ${_deviceModel!.data.message[index].deviceId}');
                             print(
@@ -333,8 +477,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             padding: const EdgeInsets.all(5.0),
                             child: Card(
                               color: _deviceModel!
-                                          .data.message[index].deviceSuccess ==
-                                      1
+                                              .data.message[index].deviceSuccess
+                                              .toString() !=
+                                          '0' &&
+                                      _deviceModel!.data.message[index]
+                                              .deviceStatus !=
+                                          '0'
                                   ? Colors.red[400]
                                   : Colors.blue[50],
                               shape: RoundedRectangleBorder(
@@ -377,9 +525,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                       }),
                 ),
-              )
-            : Center(child: CircularProgressIndicator()),
-      ),
+              ),
+            )
+          : Center(child: CircularProgressIndicator()),
     );
   }
 }

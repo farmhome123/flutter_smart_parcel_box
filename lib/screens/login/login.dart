@@ -31,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
     print('Token: ${_group_token}');
     print('Password: ${_group_password}');
     var data = {"group_token": _group_token, "group_password": _group_password};
-    var url = Uri.parse(connect().url+"api/user/login/group");
+    var url = Uri.parse(connect().url + "api/user/login/group");
     var response = await http.post(url, body: data);
     if (response.statusCode == 200) {
       _usermodel = userModelFromJson(response.body);
@@ -51,6 +51,8 @@ class _LoginScreenState extends State<LoginScreen> {
               'group_token', _usermodel.data.message[0].groupToken.toString());
           await prefs.setString('group_password',
               _usermodel.data.message[0].groupPassword.toString());
+          await prefs.setString('group_ads',
+              _usermodel.data.message[0].groupAds.toString());
           await prefs.setString('group_createtime',
               _usermodel.data.message[0].groupCreatetime.toString());
           await prefs.setString('group_updatetime',
@@ -58,7 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
           Fluttertoast.showToast(
               msg: "เช้าสู่ระบบเรียบร้อยแล้ว",
               toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.CENTER,
+              gravity: ToastGravity.BOTTOM,
               timeInSecForIosWeb: 1,
               backgroundColor: Colors.red,
               textColor: Colors.white,
@@ -66,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (BuildContext context) => const HomeScreen(),
+              builder: (BuildContext context) =>  HomeScreen(cameras: [],),
             ),
           );
         }
@@ -74,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Fluttertoast.showToast(
             msg: "เข้าสู่ระบบไม่สำเร็จกรุณาตรวจสอบ usernameและpassword",
             toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.CENTER,
+            gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,
             backgroundColor: Colors.red,
             textColor: Colors.white,

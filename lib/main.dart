@@ -1,13 +1,17 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smartparcelbox/routers.dart';
+import 'package:smartparcelbox/screens/home/home.dart';
 import 'package:smartparcelbox/screens/login/login.dart';
 import 'package:wakelock/wakelock.dart';
 
+List<CameraDescription>? cameras;
 var initURL;
 var group_id;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  cameras = await availableCameras();
   SharedPreferences prefs = await SharedPreferences.getInstance();
   group_id = prefs.getString('group_id');
   if (group_id != null) {
@@ -30,8 +34,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      initialRoute: initURL,
-      routes: routes,
+      // initialRoute: initURL,
+      // routes: routes,
+      home: group_id != null ? HomeScreen(cameras: cameras) : LoginScreen(),
     );
   }
 }

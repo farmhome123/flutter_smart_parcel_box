@@ -18,15 +18,15 @@ class DeviceModel {
     required this.data,
   });
 
-  String store;
-  DateTime timestamp;
-  bool serverstatus;
-  String page;
-  Data data;
+  final String store;
+  final String timestamp;
+  final bool serverstatus;
+  final String page;
+  final Data data;
 
   factory DeviceModel.fromJson(Map<String, dynamic> json) => DeviceModel(
         store: json["store"],
-        timestamp: DateTime.parse(json["timestamp"]),
+        timestamp: json["timestamp"],
         serverstatus: json["serverstatus"],
         page: json["page"],
         data: Data.fromJson(json["data"]),
@@ -34,7 +34,7 @@ class DeviceModel {
 
   Map<String, dynamic> toJson() => {
         "store": store,
-        "timestamp": timestamp.toIso8601String(),
+        "timestamp": timestamp,
         "serverstatus": serverstatus,
         "page": page,
         "data": data.toJson(),
@@ -48,9 +48,9 @@ class Data {
     required this.message,
   });
 
-  bool err;
-  bool status;
-  List<Message> message;
+  final bool err;
+  final bool status;
+  final List<Message> message;
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
         err: json["err"],
@@ -80,16 +80,16 @@ class Message {
     required this.devicePassword,
   });
 
-  int deviceId;
-  String deviceName;
-  int deviceStatus;
-  DateTime deviceCreatetime;
-  DateTime deviceUpdatetime;
-  int groupId;
-  int logId;
-  int deviceSuccess;
-  int userId;
-  String devicePassword;
+  final int deviceId;
+  final String deviceName;
+  final int deviceStatus;
+  final DateTime deviceCreatetime;
+  final DateTime deviceUpdatetime;
+  final int groupId;
+  final int logId;
+  final int deviceSuccess;
+  final int userId;
+  final String devicePassword;
 
   factory Message.fromJson(Map<String, dynamic> json) => Message(
         deviceId: json["device_id"],

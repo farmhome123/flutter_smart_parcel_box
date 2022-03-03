@@ -17,7 +17,7 @@ class WidgetDrawer extends StatelessWidget {
     final _textpassword = TextEditingController();
     final _formKey = GlobalKey<FormState>();
     bool _validate = true;
-    
+
     _showPasswordDialog(context) async {
       final prefs = await SharedPreferences.getInstance();
       Alert(
@@ -50,6 +50,7 @@ class WidgetDrawer extends StatelessWidget {
                     prefs.remove('group_detail');
                     prefs.remove('group_token');
                     prefs.remove('group_password');
+                    prefs.remove('group_ads');
                     prefs.remove('group_createtime');
                     prefs.remove('group_updatetime');
                     Fluttertoast.showToast(
@@ -63,7 +64,7 @@ class WidgetDrawer extends StatelessWidget {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (BuildContext context) =>  LoginScreen(),
+                        builder: (BuildContext context) => LoginScreen(),
                       ),
                     );
                   } else {
@@ -94,6 +95,7 @@ class WidgetDrawer extends StatelessWidget {
             )
           ]).show();
     }
+
     return Drawer(
       key: _formKey,
       child: ListView(
