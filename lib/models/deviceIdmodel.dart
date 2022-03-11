@@ -75,6 +75,7 @@ class Message {
     required this.groupId,
     required this.logId,
     required this.deviceSuccess,
+    required this.deviceCheck,
     required this.userId,
     required this.devicePassword,
   });
@@ -87,6 +88,7 @@ class Message {
   int groupId;
   int logId;
   int deviceSuccess;
+  int deviceCheck;
   int userId;
   String devicePassword;
 
@@ -99,6 +101,7 @@ class Message {
         groupId: json["group_id"],
         logId: json["log_id"],
         deviceSuccess: json["device_success"],
+        deviceCheck: json["device_check"],
         userId: json["user_id"],
         devicePassword: json["device_password"],
       );
@@ -112,6 +115,7 @@ class Message {
         "group_id": groupId,
         "log_id": logId,
         "device_success": deviceSuccess,
+        "device_check": deviceCheck,
         "user_id": userId,
         "device_password": devicePassword,
       };

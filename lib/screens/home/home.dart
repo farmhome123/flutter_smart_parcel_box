@@ -1,13 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
-
-import 'package:camera/camera.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:get/route_manager.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smartparcelbox/components/drawer.dart';
@@ -20,8 +17,7 @@ import 'package:smartparcelbox/service.dart';
 import 'package:video_player/video_player.dart';
 
 class HomeScreen extends StatefulWidget {
-  final List<CameraDescription>? cameras;
-  const HomeScreen({Key? key, this.cameras}) : super(key: key);
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -34,16 +30,13 @@ class _HomeScreenState extends State<HomeScreen> {
   DeviceIdModel? _deviceIdModel;
   final box = GetStorage();
   late Timer _timer;
-  int _start = 120;
+  int _start = 60;
   late VideoPlayerController _videoPlayerController1;
   late VideoPlayerController _videoPlayerController2;
+
   ChewieController? _chewieController1;
   ChewieController? _chewieController2;
 
-  // List<String> srcs = [
-  //   "https://assets.mixkit.co/videos/preview/mixkit-daytime-city-traffic-aerial-view-56-large.mp4",
-  //   "https://assets.mixkit.co/videos/preview/mixkit-a-girl-blowing-a-bubble-gum-at-an-amusement-park-1226-large.mp4"
-  // ];
   Future<void> initializePlayer() async {
     final prefs = await SharedPreferences.getInstance();
     String? urlads = await prefs.getString('group_ads');
@@ -79,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {});
   }
 
-  _displayDialog(BuildContext context) {
+  void _displayDialog(BuildContext context) {
     showGeneralDialog(
       context: context,
       barrierDismissible: false,
@@ -99,10 +92,11 @@ class _HomeScreenState extends State<HomeScreen> {
           onTap: () {
             setState(() {
               _timer.cancel();
-              _start = 120;
+              _start = 60;
             });
-            Navigator.of(context).pop();
             startTimer();
+
+            Navigator.of(context).pop();
           },
           child: OrientationBuilder(
             builder: (BuildContext context, Orientation orientation) {
@@ -259,24 +253,40 @@ class _HomeScreenState extends State<HomeScreen> {
 
   _showDepositDialog(context, lockname, group_id, device_id) async {
     Alert(
-        context: context,
-        content: Text('ต้องการฝากของช่อง $lockname '),
-        buttons: [
-          DialogButton(
-              child: Text(
-                'ตกลง',
-                style: TextStyle(fontSize: 24, color: Colors.white),
-              ),
-              onPressed: () {
-                box.write('group_id', group_id);
-                box.write('device_id', device_id);
-                Navigator.pop(context);
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => DepositlockerScreen(cameras: widget.cameras,)));
-              })
-        ]).show();
+      onWillPopActive: true,
+      context: context,
+      content: Text('ต้องการฝากของช่อง $lockname '),
+      buttons: [
+        DialogButton(
+            child: Text(
+              'ตกลง',
+              style: TextStyle(fontSize: 24, color: Colors.white),
+            ),
+            onPressed: () {
+              box.write('group_id', group_id);
+              box.write('device_id', device_id);
+              Navigator.of(context).pop();
+              Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => DepositlockerScreen()))
+                  .then((value) {
+                setState(() {
+                  _start = 60;
+                  startTimer();
+                });
+              });
+            }),
+      ],
+      closeFunction: () {
+        Navigator.of(context).pop();
+        print('close');
+        setState(() {
+          _start = 60;
+          startTimer();
+        });
+      },
+    ).show();
   }
 
   _showPasswordDialog(context) async {
@@ -287,49 +297,46 @@ class _HomeScreenState extends State<HomeScreen> {
     print('passwordDevice ===> $passwordDevice');
     print('logID ==> $_logID');
     Alert(
-        context: context,
-        title: "กรุณากรอกรหัสผ่าน",
-        content: Column(
-          children: <Widget>[
-            TextFormField(
-              decoration: InputDecoration(
-                  labelText: "Password", icon: Icon(Icons.lock)),
-              maxLines: 1,
-              onChanged: (value) => _password = value,
-              validator: (value) =>
-                  value!.trim().isEmpty ? 'กรุณากรอก Password' : null,
-            ),
-          ],
-        ),
-        buttons: [
-          DialogButton(
-            color: Colors.green[200],
-            onPressed: () {
-              if (_password != null) {
-                if (_password.toString() == passwordDevice.toString()) {
-                  print('รหัสผ่านถูกต้อง');
-                  print(_password.toString());
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => LockerScreen(
-                                log_id: _logID,
-                                device_id: _deviceID,
-                                cameras: widget.cameras,
-                              )));
-                } else {
-                  Fluttertoast.showToast(
-                      msg: "รหัสผ่านไม่ถูกต้อง",
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.CENTER,
-                      timeInSecForIosWeb: 1,
-                      backgroundColor: Colors.red,
-                      textColor: Colors.white,
-                      fontSize: 16.0);
-                }
+      onWillPopActive: false,
+      context: context,
+      title: "กรุณากรอกรหัสผ่าน",
+      content: Column(
+        children: <Widget>[
+          TextFormField(
+            decoration:
+                InputDecoration(labelText: "Password", icon: Icon(Icons.lock)),
+            maxLines: 1,
+            onChanged: (value) => _password = value,
+            validator: (value) =>
+                value!.trim().isEmpty ? 'กรุณากรอก Password' : null,
+          ),
+        ],
+      ),
+      buttons: [
+        DialogButton(
+          color: Colors.green[200],
+          onPressed: () {
+            if (_password != null) {
+              if (_password.toString() == passwordDevice.toString()) {
+                print('รหัสผ่านถูกต้อง');
+                print(_password.toString());
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LockerScreen(
+                      log_id: _logID,
+                      device_id: _deviceID,
+                    ),
+                  ),
+                ).then((value) {
+                  setState(() {
+                    _start = 60;
+                    startTimer();
+                  });
+                });
               } else {
                 Fluttertoast.showToast(
-                    msg: "กรุณากรอกรหัสผ่าน",
+                    msg: "รหัสผ่านไม่ถูกต้อง",
                     toastLength: Toast.LENGTH_SHORT,
                     gravity: ToastGravity.CENTER,
                     timeInSecForIosWeb: 1,
@@ -337,28 +344,59 @@ class _HomeScreenState extends State<HomeScreen> {
                     textColor: Colors.white,
                     fontSize: 16.0);
               }
-            },
-            child: Text(
-              "ตกลง",
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ),
-          )
-        ]).show();
+            } else {
+              Fluttertoast.showToast(
+                  msg: "กรุณากรอกรหัสผ่าน",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.CENTER,
+                  timeInSecForIosWeb: 1,
+                  backgroundColor: Colors.red,
+                  textColor: Colors.white,
+                  fontSize: 16.0);
+            }
+          },
+          child: Text(
+            "ตกลง",
+            style: TextStyle(color: Colors.white, fontSize: 20),
+          ),
+        )
+      ],
+      closeFunction: () {
+        Navigator.of(context).pop();
+        print('close');
+        setState(() {
+          _start = 60;
+          startTimer();
+        });
+      },
+    ).show();
   }
 
   Future<void> onPullToRefresh() async {
     await Future.delayed(Duration(milliseconds: 500));
     getDevice();
-    _timer.cancel();
-    _start = 120;
-    startTimer();
+    // _timer.cancel();
+    // _start = 3600;
+    // startTimer();
+  }
+
+  Future<Null> checkCamera() async {
+    Permission.camera.status.then((value) {
+      print('cameraStatus ==> $value');
+      if (value.isDenied) {
+        Permission.camera.request().then(
+            (value) => print('value after permisstion Camera ==> $value'));
+      } else {
+        return;
+      }
+    });
   }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-
+    checkCamera();
     getDevice();
     box.remove('group_id');
     box.remove('device_id');
@@ -384,7 +422,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-
     return Scaffold(
       drawer: const WidgetDrawer(),
       backgroundColor: Colors.grey[300],
@@ -427,12 +464,12 @@ class _HomeScreenState extends State<HomeScreen> {
               onRefresh: onPullToRefresh,
               child: GestureDetector(
                 onTap: () {
-                  print("Tap Screen+++++++++++++++++ ");
-                  setState(() {
-                    _timer.cancel();
-                    _start = 120;
-                  });
-                  startTimer();
+                  // print("Tap Screen+++++++++++++++++ ");
+                  // setState(() {
+                  //   _timer.cancel();
+                  //   _start = 3600;
+                  // });
+                  // startTimer();
                 },
                 child: Container(
                   child: GridView.builder(
@@ -447,9 +484,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             print("Tap Screen+++++++++++++++++ ");
                             setState(() {
                               _timer.cancel();
-                              _start = 120;
+                              // _start = 3600;
                             });
-                            startTimer();
+                            // startTimer();
                             print(
                                 'Device ===> ## ${_deviceModel!.data.message[index].deviceId}');
                             print(

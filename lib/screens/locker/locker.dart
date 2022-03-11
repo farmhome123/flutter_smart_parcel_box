@@ -12,17 +12,16 @@ import 'package:smartparcelbox/models/deviceIdmodel.dart';
 import 'package:smartparcelbox/models/logImagemodel.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:image/image.dart' as img;
+import 'package:smartparcelbox/screens/home/home.dart';
 import '../../service.dart';
 
 class LockerScreen extends StatefulWidget {
-  final List<CameraDescription>? cameras;
   final String log_id;
   final String device_id;
   const LockerScreen({
     Key? key,
     required this.log_id,
     required this.device_id,
-    this.cameras,
   }) : super(key: key);
 
   @override
@@ -38,34 +37,34 @@ class _LockerScreenState extends State<LockerScreen> {
   Timer? _timer;
   var _start = 60.obs;
   DeviceIdModel? _deviceIdModel;
-  late CameraController controller_camera;
+  CameraController? controller_camera;
   XFile? pictureFile;
 
-  // void getImage() async {
-  //   PickedFile? pickedFile = await ImagePicker().getImage(
-  //     source: ImageSource.camera,
-  //     preferredCameraDevice: CameraDevice.front,
-  //   );
-  //   if (pickedFile != null) {
-  //     setState(() {
-  //       _image = File(pickedFile.path);
-  //     });
-  //     await uploadImage();
-  //     // getNameFile();
-  //     // uploadImage();
-  //   }
-  // }
-  Future getImage() async {
-    XFile? image = pictureFile;
-    if (image != null) {
+  void getImage() async {
+    PickedFile? pickedFile = await ImagePicker().getImage(
+      source: ImageSource.camera,
+      preferredCameraDevice: CameraDevice.front,
+    );
+    if (pickedFile != null) {
       setState(() {
-        _image = File(image.path);
+        _image = File(pickedFile.path);
       });
       await uploadImage();
       // getNameFile();
       // uploadImage();
     }
   }
+  // Future getImage() async {
+  //   XFile? image = pictureFile;
+  //   if (image != null) {
+  //     setState(() {
+  //       _image = File(image.path);
+  //     });
+  //     await uploadImage();
+  //     // getNameFile();
+  //     // uploadImage();
+  //   }
+  // }
 
   void getNameFile() async {
     var url = Uri.parse(
@@ -176,7 +175,11 @@ class _LockerScreenState extends State<LockerScreen> {
       print('device_id ===> ## $device_id');
       var putOpenlocker = Uri.parse(
           connect().url + "api/device/device/managerdevice/${device_id}");
-      var body = {"device_success": "0", "device_status": "0"};
+      var body = {
+        "device_success": "0",
+        "device_status": "0",
+        "device_check": "3"
+      };
       print(body);
       var response = await http.put(putOpenlocker, body: body);
       if (response.statusCode == 200) {
@@ -264,8 +267,10 @@ class _LockerScreenState extends State<LockerScreen> {
     var response = await http.get(urlsendline);
     if (response.statusCode == 200) {
       print('sendLine success');
-      Navigator.pop(context);
-      Navigator.pop(context);
+      // Navigator.pop(context);
+      // Navigator.pop(context);
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => HomeScreen()));
       Fluttertoast.showToast(
           msg: "รับของเรียบร้อยแล้ว",
           toastLength: Toast.LENGTH_SHORT,
@@ -285,16 +290,6 @@ class _LockerScreenState extends State<LockerScreen> {
     super.initState();
     getNameFile();
     imagePicker = ImagePicker();
-    controller_camera = CameraController(
-      widget.cameras![1],
-      ResolutionPreset.medium,
-    );
-    controller_camera.initialize().then((_) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {});
-    });
   }
 
   @override
@@ -302,14 +297,13 @@ class _LockerScreenState extends State<LockerScreen> {
     if (_timer != null) {
       _timer!.cancel();
     }
-    controller_camera.dispose();
+    controller_camera!.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(
@@ -339,23 +333,6 @@ class _LockerScreenState extends State<LockerScreen> {
               SizedBox(
                 height: size.height * 0.02,
               ),
-              // Padding(
-              //   padding: const EdgeInsets.all(8.0),
-              //   child: Center(
-              //     child: Container(
-              //       color: Colors.green[50],
-              //       width: size.width * 0.8,
-              //       height: size.height * 0.5,
-              //       child: _image == null
-              //           ? Center(
-              //               child: Text(
-              //               'กรุณาถ่ายรูปภาพผู้รับ',
-              //               style: TextStyle(fontSize: 20),
-              //             ))
-              //           : Image.file(_image!),
-              //     ),
-              //   ),
-              // ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Center(
@@ -364,11 +341,28 @@ class _LockerScreenState extends State<LockerScreen> {
                     width: size.width * 0.8,
                     height: size.height * 0.5,
                     child: _image == null
-                        ? CameraPreview(controller_camera)
+                        ? Center(
+                            child: Text(
+                            'กรุณาถ่ายรูปภาพผู้รับ',
+                            style: TextStyle(fontSize: 20),
+                          ))
                         : Image.file(_image!),
                   ),
                 ),
               ),
+              // Padding(
+              //   padding: const EdgeInsets.all(8.0),
+              //   child: Center(
+              //     child: Container(
+              //       color: Colors.green[50],
+              //       width: size.width * 0.8,
+              //       height: size.height * 0.5,
+              //       child: _image == null
+              //           ? CameraPreview(controller_camera!)
+              //           : Image.file(_image!),
+              //     ),
+              //   ),
+              // ),
               SizedBox(height: size.height * 0.02),
               Container(
                 decoration: BoxDecoration(
@@ -409,9 +403,9 @@ class _LockerScreenState extends State<LockerScreen> {
                     ],
                   ),
                   onPressed: () async {
-                    print('ถ่ายรูป');
-                    pictureFile = await controller_camera.takePicture();
-                    setState(() {});
+                    // print('ถ่ายรูป');
+                    // pictureFile = await controller_camera!.takePicture();
+                    // setState(() {});
                     getImage();
                   },
                 ),

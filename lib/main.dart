@@ -6,12 +6,12 @@ import 'package:smartparcelbox/screens/home/home.dart';
 import 'package:smartparcelbox/screens/login/login.dart';
 import 'package:wakelock/wakelock.dart';
 
-List<CameraDescription>? cameras;
 var initURL;
 var group_id;
-Future<void> main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  cameras = await availableCameras();
+  final cameras = await availableCameras();
+
   SharedPreferences prefs = await SharedPreferences.getInstance();
   group_id = prefs.getString('group_id');
   if (group_id != null) {
@@ -19,11 +19,14 @@ Future<void> main() async {
   } else {
     initURL = '/login';
   }
-  runApp(const MyApp());
+  runApp(MyApp(
+    cameras: cameras,
+  ));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  List<CameraDescription>? cameras;
+  MyApp({Key? key, required this.cameras}) : super(key: key);
 
   // This widget is the root of your application.
   @override
@@ -36,7 +39,7 @@ class MyApp extends StatelessWidget {
       ),
       // initialRoute: initURL,
       // routes: routes,
-      home: group_id != null ? HomeScreen(cameras: cameras) : LoginScreen(),
+      home: group_id != null ? HomeScreen() : LoginScreen(),
     );
   }
 }
