@@ -12,8 +12,10 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  String _group_token = "301704aba8b3510e";
-  String _group_password = "H25cMKtJSmek";
+  // String _group_token = "301704aba8b3510e";
+  // String _group_password = "H25cMKtJSmek";
+   String _group_token = "";
+  String _group_password = "";
   final GlobalKey<FormState> _formKey = GlobalKey();
   final _tokenFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();

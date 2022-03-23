@@ -481,7 +481,7 @@ class _LockerScreenState extends State<LockerScreen> {
   _showDialog(context) async {
     Alert(context: context, title: "กรุณาถ่ายรูป", buttons: [
       DialogButton(
-        color: Colors.green[200],
+        color: Colors.green[300],
         onPressed: () async {
           Navigator.pop(context);
           Navigator.pop(context);
@@ -513,7 +513,7 @@ class _LockerScreenState extends State<LockerScreen> {
         ),
         buttons: [
           DialogButton(
-            color: Colors.green[200],
+          color: Colors.green[300],
             onPressed: () async {
               Navigator.pop(context);
               _timer!.cancel();

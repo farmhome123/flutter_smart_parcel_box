@@ -95,7 +95,7 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
   @override
   void dispose() {
     debouncer?.cancel();
-    
+
     super.dispose();
   }
 
@@ -398,6 +398,9 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
                             children: <Widget>[
                               if (_currentStep == 0)
                                 ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    primary: Colors.green[300],
+                                  ),
                                   onPressed: () {
                                     if (!nameselect.isEmpty) {
                                       setState(() {
@@ -424,6 +427,9 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
                               //   ),
                               if (_currentStep == 1)
                                 ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    primary: Colors.green[300],
+                                  ),
                                   onPressed: () {
                                     if (_image != null) {
                                       print('บันทึกข้อมูล');
@@ -498,6 +504,7 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
                           isActive: _currentStep == 0,
                         ),
                         Step(
+                          
                           title: const Text('ข้อมูลผู้ฝาก'),
                           content: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -772,6 +779,7 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
   _showAlertselect(context) async {
     Alert(context: context, content: Text('กรุณาเลือกผู้รับ'), buttons: [
       DialogButton(
+          color: Colors.green[300],
           child: Text(
             'ตกลง',
             style: TextStyle(fontSize: 24, color: Colors.white),
@@ -785,6 +793,7 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
   _showAlertTakePhoto(context) async {
     Alert(context: context, content: Text('กรุณาถ่ายรูป'), buttons: [
       DialogButton(
+          color: Colors.green[300],
           child: Text(
             'ตกลง',
             style: TextStyle(fontSize: 24, color: Colors.white),
@@ -798,6 +807,7 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
   _showAlertSave(context) async {
     Alert(context: context, content: Text('ต้องการบันทึกข้อมูล'), buttons: [
       DialogButton(
+          color: Colors.green[300],
           child: Text(
             'ตกลง',
             style: TextStyle(fontSize: 24, color: Colors.white),

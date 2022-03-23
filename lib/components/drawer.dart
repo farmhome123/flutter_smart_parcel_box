@@ -29,7 +29,8 @@ class WidgetDrawer extends StatelessWidget {
                 decoration: InputDecoration(
                     labelText: "Password", icon: Icon(Icons.lock)),
                 maxLines: 1,
-                initialValue: 'H25cMKtJSmek',
+                // initialValue: 'H25cMKtJSmek',
+
                 onChanged: (value) => _password = value,
                 validator: (value) =>
                     value!.trim().isEmpty ? 'กรุณากรอก Password' : null,
