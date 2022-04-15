@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:camera/camera.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:flutter/material.dart';
@@ -206,17 +205,12 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
         print(response.statusCode);
         if (response.statusCode == 200) {
           print('อัพโหลดรูปภาพสำเร็จ');
-
           print(response);
           setState(() {
             isloaddinguploadimage = false;
           });
           openLocker();
         } else {
-          setState(() {
-            isloaddinguploadimage = false;
-          });
-
           print(response.statusCode);
           print('อัพโหลดรูปภาพไม่สำเร็จ');
         }
@@ -510,6 +504,7 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
                           isActive: _currentStep == 0,
                         ),
                         Step(
+                          
                           title: const Text('ข้อมูลผู้ฝาก'),
                           content: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -817,8 +812,7 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
             'ตกลง',
             style: TextStyle(fontSize: 24, color: Colors.white),
           ),
-          onPressed: () async {
-            Navigator.pop(context);
+          onPressed: () {
             isloaddinguploadimage == true
                 ? showDialog(
                     context: context,
@@ -828,9 +822,8 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
                       );
                     })
                 : Navigator.pop(context);
-            // EasyLoading.show(status: 'loading...');
-            await uploadImage();
-            print('บันทึกข้อมูล');
+
+            uploadImage();
           }),
       DialogButton(
           color: Colors.red,
