@@ -9,6 +9,7 @@ import 'package:http_parser/http_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:numeric_keyboard/numeric_keyboard.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:http/http.dart' as http;
 import 'package:smartparcelbox/Widget/search_widget.dart';
@@ -53,6 +54,7 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
   CameraController? controller_camera;
   Future<void>? _initializeControllerFuture; //Future to wait un
 
+  String text = '';
   _stepState(int step) {
     if (_currentStep > step) {
       return StepState.complete;
@@ -191,9 +193,7 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
         img.Image resizedImg = img.copyResize(imageTemp!, height: 500);
 
         var request = new http.MultipartRequest(
-            'POST',
-            Uri.parse(
-                connect().url + "upload-images/upload-image/${namefile}"));
+            'POST', Uri.parse(connect().url + "upload-images/upload-image/${namefile}"));
         var multipartFile = new http.MultipartFile.fromBytes(
           'file',
           img.encodeJpg(resizedImg),
@@ -233,13 +233,9 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
     var device_id = await box.read("device_id");
     try {
       print('device_id ===> ## $device_id');
-      var putOpenlocker = Uri.parse(
-          connect().url + "api/device/device/managerdevice/${device_id}");
-      var body = {
-        "device_success": "0",
-        "device_status": "0",
-        "device_check": "1"
-      };
+      var putOpenlocker =
+          Uri.parse(connect().url + "api/device/device/managerdevice/${device_id}");
+      var body = {"device_success": "0", "device_status": "0", "device_check": "1"};
       print(body);
       var response = await http.put(putOpenlocker, body: body);
       if (response.statusCode == 200) {
@@ -275,16 +271,14 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
               _deviceIdModel = deviceIdModelFromJson(response.body);
             });
             print(_deviceIdModel);
-            print(
-                'device_success ===> ${_deviceIdModel!.data.message.deviceSuccess}');
+            print('device_success ===> ${_deviceIdModel!.data.message.deviceSuccess}');
             if (_deviceIdModel!.data.message.deviceStatus.toString() == '2') {
               sendLine();
               _timer!.cancel();
             }
           } else {
             print('error ===> ${response.statusCode}');
-            Navigator.push(
-                context, MaterialPageRoute(builder: (_) => HomeScreen()));
+            Navigator.push(context, MaterialPageRoute(builder: (_) => HomeScreen()));
           }
         },
       );
@@ -309,8 +303,7 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
             });
             // Navigator.pop(context);
             // Navigator.pop(context);
-            Navigator.push(
-                context, MaterialPageRoute(builder: (_) => HomeScreen()));
+            Navigator.push(context, MaterialPageRoute(builder: (_) => HomeScreen()));
           } else {
             setState(() {
               _start--;
@@ -322,11 +315,9 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
                 _deviceIdModel = deviceIdModelFromJson(response.body);
               });
               print(_deviceIdModel);
-              print(
-                  'device_success ===> ${_deviceIdModel!.data.message.deviceSuccess}');
+              print('device_success ===> ${_deviceIdModel!.data.message.deviceSuccess}');
               if (_deviceIdModel!.data.message.deviceStatus.toString() != '0' &&
-                  _deviceIdModel!.data.message.deviceSuccess.toString() !=
-                      '0') {
+                  _deviceIdModel!.data.message.deviceSuccess.toString() != '0') {
                 sendLine();
                 _timer!.cancel();
               }
@@ -334,8 +325,7 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
               print('error ===> ${response.statusCode}');
               // Navigator.pop(context);
               // Navigator.pop(context);
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (_) => HomeScreen()));
+              Navigator.push(context, MaterialPageRoute(builder: (_) => HomeScreen()));
             }
           }
         },
@@ -347,14 +337,12 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
 
   void sendLine() async {
     var device_id = await box.read('device_id');
-    var urlsendline =
-        Uri.parse(connect().url + "api/linebot/send/step/1/${device_id}");
+    var urlsendline = Uri.parse(connect().url + "api/linebot/send/step/1/${device_id}");
     try {
       var response = await http.get(urlsendline);
       if (response.statusCode == 200) {
         print('sendLine success');
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => HomeScreen()));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen()));
         Fluttertoast.showToast(
             msg: "ฝากของเรียบร้อยแล้ว",
             toastLength: Toast.LENGTH_SHORT,
@@ -395,68 +383,66 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
                     child: Stepper(
                       physics: ClampingScrollPhysics(),
                       type: StepperType.horizontal,
-                      controlsBuilder:
-                          (BuildContext context, ControlsDetails controls) {
+                      controlsBuilder: (BuildContext context, ControlsDetails controls) {
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: <Widget>[
                               if (_currentStep == 0)
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    primary: Colors.green[300],
+                                // ElevatedButton(
+                                //   style: ElevatedButton.styleFrom(
+                                //     primary: Colors.green[300],
+                                //   ),
+                                //   onPressed: () {
+                                //     if (!nameselect.isEmpty) {
+                                //       setState(() {
+                                //         if (_currentStep < 3 - 1) {
+                                //           _currentStep += 1;
+                                //         } else {
+                                //           _currentStep = 0;
+                                //         }
+                                //       });
+                                //     } else {
+                                //       print('กรุณาเลือกผู้รับ');
+                                //       _showAlertselect(context);
+                                //     }
+                                //   },
+                                //   child: const Text('ถัดไป'),
+                                // ),
+                                // if (_currentStep != 0)
+                                //   TextButton(
+                                //     onPressed: controls.onStepCancel,
+                                //     child: const Text(
+                                //       'BACK',
+                                //       style: TextStyle(color: Colors.grey),
+                                //     ),
+                                //   ),
+                                if (_currentStep == 1)
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      primary: Colors.green[300],
+                                    ),
+                                    onPressed: () {
+                                      if (_image != null) {
+                                        print('บันทึกข้อมูล');
+                                        setState(() {
+                                          if (_currentStep < 3 - 1) {
+                                            _currentStep += 1;
+                                          } else {
+                                            _currentStep = 0;
+                                          }
+                                        });
+                                      } else {
+                                        print('กรุณาถ่ายรูป');
+                                        _showAlertTakePhoto(context);
+                                      }
+                                    },
+                                    child: const Text('ถัดไป'),
                                   ),
-                                  onPressed: () {
-                                    if (!nameselect.isEmpty) {
-                                      setState(() {
-                                        if (_currentStep < 3 - 1) {
-                                          _currentStep += 1;
-                                        } else {
-                                          _currentStep = 0;
-                                        }
-                                      });
-                                    } else {
-                                      print('กรุณาเลือกผู้รับ');
-                                      _showAlertselect(context);
-                                    }
-                                  },
-                                  child: const Text('ถัดไป'),
-                                ),
-                              // if (_currentStep != 0)
-                              //   TextButton(
-                              //     onPressed: controls.onStepCancel,
-                              //     child: const Text(
-                              //       'BACK',
-                              //       style: TextStyle(color: Colors.grey),
-                              //     ),
-                              //   ),
-                              if (_currentStep == 1)
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    primary: Colors.green[300],
-                                  ),
-                                  onPressed: () {
-                                    if (_image != null) {
-                                      print('บันทึกข้อมูล');
-                                      setState(() {
-                                        if (_currentStep < 3 - 1) {
-                                          _currentStep += 1;
-                                        } else {
-                                          _currentStep = 0;
-                                        }
-                                      });
-                                    } else {
-                                      print('กรุณาถ่ายรูป');
-                                      _showAlertTakePhoto(context);
-                                    }
-                                  },
-                                  child: const Text('ถัดไป'),
-                                ),
                               if (_currentStep == 2)
                                 ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                      primary: Colors.red),
+                                  style: ElevatedButton.styleFrom(primary: Colors.red),
                                   onPressed: () {
                                     print('DONE');
                                     Navigator.pop(context);
@@ -476,30 +462,75 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
-                                        Text('ชื่อผู้รับ: '),
+                                        Text('เบอร์โทรศัพท์ผู้ฝาก: '),
                                         Text(
                                           "${nameselect}",
                                           style: TextStyle(color: Colors.green),
                                         ),
                                       ],
                                     ),
-                                    const Divider(),
-                                    buildSearch(),
-                                    const Divider(),
-                                    Container(
-                                      height: size.height * 0.5,
-                                      child: ListView.builder(
-                                          itemCount: users!.length,
-                                          itemBuilder: (context, index) {
-                                            final user = users![index];
-                                            return buildBook(user);
-                                          }),
+                                    SizedBox(
+                                      height: 15,
                                     ),
+                                    //  buildSearch(),
+                                    Container(
+                                      padding: EdgeInsets.all(15),
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                          color: Colors.grey[400],
+                                          borderRadius: BorderRadius.circular(20)),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            text.isNotEmpty
+                                                ? text
+                                                : 'กรุณากรอกเบอร์โทรศัพท์',
+                                            style: TextStyle(fontSize: 16),
+                                          ),
+                                          InkWell(
+                                              onTap: () {
+                                                setState(() {
+                                                  text = '';
+                                                });
+                                              },
+                                              child: Icon(Icons.close)),
+                                        ],
+                                      ),
+                                    ),
+
+                                    NumericKeyboard(
+                                        onKeyboardTap: _onKeyboardTap,
+                                        textColor: Colors.red,
+                                        rightButtonFn: () {
+                                          setState(() {
+                                            text = text.substring(0, text.length - 1);
+                                          });
+                                        },
+                                        rightIcon: Icon(
+                                          Icons.backspace,
+                                          color: Colors.red,
+                                        ),
+                                        leftButtonFn: () {
+                                          print('left button clicked');
+                                        },
+                                        leftIcon: Icon(
+                                          Icons.check,
+                                          color: Colors.transparent,
+                                        ),
+                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly),
+                                    // Container(
+                                    //   height: size.height * 0.5,
+                                    //   child: ListView.builder(
+                                    //       itemCount: users!.length,
+                                    //       itemBuilder: (context, index) {
+                                    //         final user = users![index];
+                                    //         return buildBook(user);
+                                    //       }),
+                                    // ),
                                     const Divider(),
                                   ],
                                 )
@@ -515,26 +546,16 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // Row(
+                              //   mainAxisAlignment: MainAxisAlignment.start,
+                              //   crossAxisAlignment: CrossAxisAlignment.center,
                               //   children: [
-                              //     Text('  group_id: ' +
-                              //         box.read('group_id').toString()),
-                              //     Text('  device_id: ' +
-                              //         box.read('device_id').toString()),
-                              //     Text('  user_id: ' +
-                              //         box.read('user_id').toString())
+                              //     // Text('ชื่อผู้รับ: '),
+                              //     // Text(
+                              //     //   "${nameselect}",
+                              //     //   style: TextStyle(color: Colors.green),
+                              //     // ),
                               //   ],
                               // ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text('ชื่อผู้รับ: '),
-                                  Text(
-                                    "${nameselect}",
-                                    style: TextStyle(color: Colors.green),
-                                  ),
-                                ],
-                              ),
                               SizedBox(
                                 height: size.height * 0.01,
                               ),
@@ -574,43 +595,7 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
                                   ),
                                 ),
                               ),
-                              // Padding(
-                              //   padding: const EdgeInsets.all(8.0),
-                              //   child: Center(
-                              //     child: Container(
-                              //       color: Colors.green[50],
-                              //       width: size.width * 0.8,
-                              //       height: size.height * 0.5,
-                              //       child: _image == null
-                              //           ? CameraPreview(controller_camera)
-                              //           : Image.file(_image!),
-                              //     ),
-                              //   ),
-                              // ),
-                              // Padding(
-                              //   padding: const EdgeInsets.all(8.0),
-                              //   child: FutureBuilder<void>(
-                              //     future: _initializeControllerFuture,
-                              //     builder: (context, snapshot) {
-                              //       if (snapshot.connectionState ==
-                              //           ConnectionState.done) {
-                              //         // If the Future is complete, display the preview.
-                              //         return Container(
-                              //             color: Colors.green[50],
-                              //             width: size.width * 0.8,
-                              //             height: size.height * 0.5,
-                              //             child: _image != null
-                              //                 ? Image.file(_image!)
-                              //                 : CameraPreview(
-                              //                     controller_camera!));
-                              //       } else {
-                              //         // Otherwise, display a loading indicator.
-                              //         return Center(
-                              //             child: CircularProgressIndicator());
-                              //       }
-                              //     },
-                              //   ),
-                              // ),
+
                               Align(
                                 alignment: Alignment.center,
                                 child: Container(
@@ -622,8 +607,8 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
                                         color: Colors.green[100]!,
                                         blurRadius: 2.0,
                                         spreadRadius: 0.0,
-                                        offset: Offset(0,
-                                            3.0), // shadow direction: bottom right
+                                        offset: Offset(
+                                            0, 3.0), // shadow direction: bottom right
                                       )
                                     ],
                                   ),
@@ -636,19 +621,17 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
                                     color: Colors.green[300],
                                     textColor: Colors.white,
                                     child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        const Text(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: const [
+                                        Text(
                                           "ถ่ายรูป",
                                           style: TextStyle(
                                             fontSize: 18,
                                             letterSpacing: 1,
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           width: 10,
                                         ),
                                         Icon(Icons.camera_alt)
@@ -672,7 +655,7 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
                                       // pictureFile = await controller_camera!
                                       //     .takePicture();
                                       // setState(() {});
-                                      getImage();
+                                      await getImage();
                                     },
                                   ),
                                 ),
@@ -715,8 +698,7 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
                                       alignment: Alignment.center,
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(20.0),
+                                          borderRadius: BorderRadius.circular(20.0),
                                           color: Colors.white,
                                           boxShadow: [
                                             BoxShadow(
@@ -731,17 +713,14 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
                                         width: size.width * 0.7,
                                         child: FlatButton(
                                           shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
+                                            borderRadius: BorderRadius.circular(10.0),
                                           ),
                                           padding: EdgeInsets.all(10),
                                           color: Colors.green[300],
                                           textColor: Colors.white,
                                           child: Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            mainAxisAlignment: MainAxisAlignment.center,
                                             children: [
                                               const Text(
                                                 "ยืนยันการฝาก",
@@ -781,6 +760,46 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
     );
   }
 
+  void _onKeyboardTap(String value) async {
+    if (text.length < 10) {
+      setState(() {
+        text = text + value;
+        print('text = $text');
+      });
+      if (text.length == 10) {
+        final users = await getUsers(text);
+        for (var item in users) {
+          if (item.userTel.toString() == text.toString()) {
+            await getImage();
+            if (_image == null) {
+              setState(() {
+                text = '';
+              });
+            } else {
+              print('ถ่ายรูปแล้ว');
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Widget buildSearch() => SearchWidget(
+  //       text: text,
+  //       hintText: 'เบอร์โทรศัพท์',
+  //       onChanged: searchBook,
+  //     );
+
+  // Future searchBook(String query) async => debounce(() async {
+  //       final users = await getUsers(query);
+  //       print('query ${query}');
+  //       print('users ${users}');
+  //       if (!mounted) return;
+  //       setState(() {
+  //         this.query = query;
+  //         this.users = users;
+  //       });
+  //     });
   _showAlertselect(context) async {
     Alert(context: context, content: Text('กรุณาเลือกผู้รับ'), buttons: [
       DialogButton(
@@ -844,22 +863,6 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
     ]).show();
   }
 
-  Widget buildSearch() => SearchWidget(
-        text: query,
-        hintText: 'เบอร์โทรศัพท์',
-        onChanged: searchBook,
-      );
-
-  Future searchBook(String query) async => debounce(() async {
-        final users = await getUsers(query);
-        print('query ${query}');
-        print('users ${users}');
-        if (!mounted) return;
-        setState(() {
-          this.query = query;
-          this.users = users;
-        });
-      });
   Widget buildBook(UserList user) => ListTile(
         title: Text('Name: ' + user.userName),
         onTap: () {
@@ -872,10 +875,7 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
         subtitle: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Email: ' + user.userEmail),
-            Text('Tel: ' + user.userTel)
-          ],
+          children: [Text('Email: ' + user.userEmail), Text('Tel: ' + user.userTel)],
         ),
       );
 
@@ -903,8 +903,8 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
               if (!_timer!.isActive) {
                 // Navigator.pop(context);
                 // Navigator.pop(context);
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => HomeScreen()));
+                Navigator.push(
+                    context, MaterialPageRoute(builder: (context) => HomeScreen()));
               }
             },
             child: Text(
