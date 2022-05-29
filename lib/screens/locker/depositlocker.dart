@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:camera/camera.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:flutter/material.dart';
@@ -455,299 +456,9 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
                       },
                       currentStep: _currentStep,
                       steps: [
-                        Step(
-                          title: const Text('เลือกผู้รับ'),
-                          content: users != null
-                              ? Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        Text('เบอร์โทรศัพท์ผู้ฝาก: '),
-                                        Text(
-                                          "${nameselect}",
-                                          style: TextStyle(color: Colors.green),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height: 15,
-                                    ),
-                                    //  buildSearch(),
-                                    Container(
-                                      padding: EdgeInsets.all(15),
-                                      height: 50,
-                                      decoration: BoxDecoration(
-                                          color: Colors.grey[400],
-                                          borderRadius: BorderRadius.circular(20)),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            text.isNotEmpty
-                                                ? text
-                                                : 'กรุณากรอกเบอร์โทรศัพท์',
-                                            style: TextStyle(fontSize: 16),
-                                          ),
-                                          InkWell(
-                                              onTap: () {
-                                                setState(() {
-                                                  text = '';
-                                                });
-                                              },
-                                              child: Icon(Icons.close)),
-                                        ],
-                                      ),
-                                    ),
-
-                                    NumericKeyboard(
-                                        onKeyboardTap: _onKeyboardTap,
-                                        textColor: Colors.red,
-                                        rightButtonFn: () {
-                                          setState(() {
-                                            text = text.substring(0, text.length - 1);
-                                          });
-                                        },
-                                        rightIcon: Icon(
-                                          Icons.backspace,
-                                          color: Colors.red,
-                                        ),
-                                        leftButtonFn: () {
-                                          print('left button clicked');
-                                        },
-                                        leftIcon: Icon(
-                                          Icons.check,
-                                          color: Colors.transparent,
-                                        ),
-                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly),
-                                    // Container(
-                                    //   height: size.height * 0.5,
-                                    //   child: ListView.builder(
-                                    //       itemCount: users!.length,
-                                    //       itemBuilder: (context, index) {
-                                    //         final user = users![index];
-                                    //         return buildBook(user);
-                                    //       }),
-                                    // ),
-                                    const Divider(),
-                                  ],
-                                )
-                              : Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                          state: _stepState(0),
-                          isActive: _currentStep == 0,
-                        ),
-                        Step(
-                          title: const Text('ข้อมูลผู้ฝาก'),
-                          content: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Row(
-                              //   mainAxisAlignment: MainAxisAlignment.start,
-                              //   crossAxisAlignment: CrossAxisAlignment.center,
-                              //   children: [
-                              //     // Text('ชื่อผู้รับ: '),
-                              //     // Text(
-                              //     //   "${nameselect}",
-                              //     //   style: TextStyle(color: Colors.green),
-                              //     // ),
-                              //   ],
-                              // ),
-                              SizedBox(
-                                height: size.height * 0.01,
-                              ),
-                              Align(
-                                alignment: Alignment.center,
-                                child: const Text(
-                                  'อัพโหลดรูปภาพ',
-                                  style: TextStyle(
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                height: size.height * 0.01,
-                              ),
-                              // FlatButton(
-                              //     onPressed: () => uploadImage(),
-                              //     child: Text('upload')),
-                              // FlatButton(
-                              //     onPressed: () =>
-                              //         _showDialogOpenLocker(context),
-                              //     child: Text('openLocker')),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Center(
-                                  child: Container(
-                                    color: Colors.green[50],
-                                    width: size.width * 0.8,
-                                    height: size.height * 0.5,
-                                    child: _image == null
-                                        ? Center(
-                                            child: Text(
-                                            'กรุณาถ่ายรูป',
-                                            style: TextStyle(fontSize: 20),
-                                          ))
-                                        : Image.file(File(_image!.path)),
-                                  ),
-                                ),
-                              ),
-
-                              Align(
-                                alignment: Alignment.center,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20.0),
-                                    color: Colors.white,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.green[100]!,
-                                        blurRadius: 2.0,
-                                        spreadRadius: 0.0,
-                                        offset: Offset(
-                                            0, 3.0), // shadow direction: bottom right
-                                      )
-                                    ],
-                                  ),
-                                  width: size.width * 0.7,
-                                  child: FlatButton(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                    padding: EdgeInsets.all(10),
-                                    color: Colors.green[300],
-                                    textColor: Colors.white,
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: const [
-                                        Text(
-                                          "ถ่ายรูป",
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            letterSpacing: 1,
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: 10,
-                                        ),
-                                        Icon(Icons.camera_alt)
-                                      ],
-                                    ),
-                                    onPressed: () async {
-                                      print('ถ่ายรูป');
-                                      // getImage();
-                                      // await availableCameras().then(
-                                      //   (value) => Navigator.push(
-                                      //     context,
-                                      //     MaterialPageRoute(
-                                      //       builder: (context) => CameraPage(
-                                      //         cameras: value,
-                                      //       ),
-                                      //     ), // MaterialPageRoute
-                                      //   ),
-                                      // );
-                                      // pictureFile = await controller.takePicture();
-                                      // await _initializeControllerFuture;
-                                      // pictureFile = await controller_camera!
-                                      //     .takePicture();
-                                      // setState(() {});
-                                      await getImage();
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          state: _stepState(1),
-                          isActive: _currentStep == 1,
-                        ),
-                        Step(
-                          title: const Text('สรุปการฝาก'),
-                          content: Container(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text('ชื่อผู้รับ: '),
-                                    Text(
-                                      "${nameselect}",
-                                      style: TextStyle(color: Colors.green),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Text('รูปผู้ฝาก'),
-                                    Padding(
-                                      padding: const EdgeInsets.all(15.0),
-                                      child: _image != null
-                                          ? Image.file(
-                                              _image!,
-                                              height: size.height * 0.5,
-                                            )
-                                          : Text('...'),
-                                    ),
-                                    Align(
-                                      alignment: Alignment.center,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(20.0),
-                                          color: Colors.white,
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.green[100]!,
-                                              blurRadius: 2.0,
-                                              spreadRadius: 0.0,
-                                              offset: Offset(0,
-                                                  3.0), // shadow direction: bottom right
-                                            )
-                                          ],
-                                        ),
-                                        width: size.width * 0.7,
-                                        child: FlatButton(
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(10.0),
-                                          ),
-                                          padding: EdgeInsets.all(10),
-                                          color: Colors.green[300],
-                                          textColor: Colors.white,
-                                          child: Row(
-                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              const Text(
-                                                "ยืนยันการฝาก",
-                                                style: TextStyle(
-                                                  fontSize: 18,
-                                                  letterSpacing: 1,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          onPressed: () {
-                                            print('บันทึกข้อมูล');
-                                            getNameImage();
-                                            _showAlertSave(context);
-                                            // getImage();
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          state: _stepState(2),
-                          isActive: _currentStep == 2,
-                        ),
+                        _buildStep1(),
+                        _buildStep2(size),
+                        _buildStep3(size, context),
                       ],
                     ),
                   )
@@ -760,7 +471,336 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
     );
   }
 
+  Step _buildStep3(Size size, BuildContext context) {
+    return Step(
+      title: const Text('สรุปการฝาก'),
+      content: Container(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text('ชื่อผู้รับ: '),
+                Text(
+                  "${nameselect}",
+                  style: TextStyle(color: Colors.green),
+                ),
+              ],
+            ),
+            Column(
+              children: [
+                Text('รูปผู้ฝาก'),
+                Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: _image != null
+                      ? Image.file(
+                          _image!,
+                          height: size.height * 0.5,
+                        )
+                      : Text('...'),
+                ),
+                Align(
+                  alignment: Alignment.center,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20.0),
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.green[100]!,
+                          blurRadius: 2.0,
+                          spreadRadius: 0.0,
+                          offset: Offset(0, 3.0), // shadow direction: bottom right
+                        )
+                      ],
+                    ),
+                    width: size.width * 0.7,
+                    child: FlatButton(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      padding: EdgeInsets.all(10),
+                      color: Colors.green[300],
+                      textColor: Colors.white,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            "ยืนยันการฝาก",
+                            style: TextStyle(
+                              fontSize: 18,
+                              letterSpacing: 1,
+                            ),
+                          ),
+                        ],
+                      ),
+                      onPressed: () {
+                        print('บันทึกข้อมูล');
+                        getNameImage();
+                        _showAlertSave(context);
+                        // getImage();
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+      state: _stepState(2),
+      isActive: _currentStep == 2,
+    );
+  }
+
+  Step _buildStep2(Size size) {
+    return Step(
+      title: const Text('ข้อมูลผู้ฝาก'),
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.start,
+          //   crossAxisAlignment: CrossAxisAlignment.center,
+          //   children: [
+          //     // Text('ชื่อผู้รับ: '),
+          //     // Text(
+          //     //   "${nameselect}",
+          //     //   style: TextStyle(color: Colors.green),
+          //     // ),
+          //   ],
+          // ),
+          SizedBox(
+            height: size.height * 0.01,
+          ),
+          Align(
+            alignment: Alignment.center,
+            child: const Text(
+              'อัพโหลดรูปภาพ',
+              style: TextStyle(
+                color: Colors.blue,
+              ),
+            ),
+          ),
+          SizedBox(
+            height: size.height * 0.01,
+          ),
+          // FlatButton(
+          //     onPressed: () => uploadImage(),
+          //     child: Text('upload')),
+          // FlatButton(
+          //     onPressed: () =>
+          //         _showDialogOpenLocker(context),
+          //     child: Text('openLocker')),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Center(
+              child: Container(
+                color: Colors.green[50],
+                width: size.width * 0.8,
+                height: size.height * 0.5,
+                child: _image == null
+                    ? Center(
+                        child: Text(
+                        'กรุณาถ่ายรูป',
+                        style: TextStyle(fontSize: 20),
+                      ))
+                    : Image.file(File(_image!.path)),
+              ),
+            ),
+          ),
+
+          Align(
+            alignment: Alignment.center,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20.0),
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.green[100]!,
+                    blurRadius: 2.0,
+                    spreadRadius: 0.0,
+                    offset: Offset(0, 3.0), // shadow direction: bottom right
+                  )
+                ],
+              ),
+              width: size.width * 0.7,
+              child: FlatButton(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                padding: EdgeInsets.all(10),
+                color: Colors.green[300],
+                textColor: Colors.white,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    Text(
+                      "ถ่ายรูป",
+                      style: TextStyle(
+                        fontSize: 18,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Icon(Icons.camera_alt)
+                  ],
+                ),
+                onPressed: () async {
+                  print('ถ่ายรูป');
+                  // getImage();
+                  // await availableCameras().then(
+                  //   (value) => Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //       builder: (context) => CameraPage(
+                  //         cameras: value,
+                  //       ),
+                  //     ), // MaterialPageRoute
+                  //   ),
+                  // );
+                  // pictureFile = await controller.takePicture();
+                  // await _initializeControllerFuture;
+                  // pictureFile = await controller_camera!
+                  //     .takePicture();
+                  // setState(() {});
+                  await getImage();
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+      state: _stepState(1),
+      isActive: _currentStep == 1,
+    );
+  }
+
+  Step _buildStep1() {
+    return Step(
+      title: const Text('เลือกผู้รับ'),
+      content: users != null
+          ? Column(
+              children: [
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.start,
+                //   crossAxisAlignment: CrossAxisAlignment.center,
+                //   children: [
+                //     Text('เบอร์โทรศัพท์ผู้ฝาก: '),
+                //     Text(
+                //       "${nameselect}",
+                //       style: TextStyle(color: Colors.green),
+                //     ),
+                //   ],
+                // ),
+                const SizedBox(
+                  height: 50,
+                ),
+                //  buildSearch(),
+                Container(
+                  padding: EdgeInsets.all(15),
+                  height: 50,
+                  decoration: BoxDecoration(
+                      color: Colors.grey[400], borderRadius: BorderRadius.circular(20)),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        text.isNotEmpty ? text : 'กรุณากรอกเบอร์โทรศัพท์',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      InkWell(
+                          onTap: () {
+                            setState(() {
+                              text = '';
+                            });
+                          },
+                          child: Icon(Icons.close)),
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  height: 30,
+                ),
+                // Container(
+                //   width: double.infinity,
+                //   child: OtpTextField(
+                //     numberOfFields: 10,
+                //     textStyle: TextStyle(fontSize: 14),
+                //     borderColor: Color(0xFF512DA8),
+                //     fieldWidth: 24,
+                //     //set to true to show as box or false to show as dash
+                //     showFieldAsBox: false,
+                //     //runs when a code is typed in
+                //     onCodeChanged: (String code) {
+                //       print(code);
+                //       //handle validation or checks here
+                //     },
+                //     //runs when every textfield is filled
+                //     onSubmit: (String verificationCode) {
+                //       // showDialog(
+                //       //     context: context,
+                //       //     builder: (context) {
+                //       //       return AlertDialog(
+                //       //         title: Text("Verification Code"),
+                //       //         content: Text('Code entered is $verificationCode'),
+                //       //       );
+                //       //     });
+                //       setState(() {
+                //         text = verificationCode;
+                //       });
+                //     }, // end onSubmit
+                //   ),
+                // ),
+                NumericKeyboard(
+                    onKeyboardTap: _onKeyboardTap,
+                    textColor: Colors.blueAccent,
+                    rightButtonFn: () {
+                      setState(() {
+                        text = text.substring(0, text.length - 1);
+                      });
+                    },
+                    rightIcon: Icon(
+                      Icons.backspace,
+                      color: Colors.blueAccent,
+                    ),
+                    leftButtonFn: () {
+                      print('left button clicked');
+                    },
+                    leftIcon: Icon(
+                      Icons.check,
+                      color: Colors.transparent,
+                    ),
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween),
+                // Container(
+                //   height: size.height * 0.5,
+                //   child: ListView.builder(
+                //       itemCount: users!.length,
+                //       itemBuilder: (context, index) {
+                //         final user = users![index];
+                //         return buildBook(user);
+                //       }),
+                // ),
+                // const Divider(),
+              ],
+            )
+          : Center(
+              child: CircularProgressIndicator(),
+            ),
+      state: _stepState(0),
+      isActive: _currentStep == 0,
+    );
+  }
+
   void _onKeyboardTap(String value) async {
+    bool isUser = false;
     if (text.length < 10) {
       setState(() {
         text = text + value;
@@ -770,15 +810,27 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
         final users = await getUsers(text);
         for (var item in users) {
           if (item.userTel.toString() == text.toString()) {
-            await getImage();
-            if (_image == null) {
-              setState(() {
-                text = '';
-              });
-            } else {
-              print('ถ่ายรูปแล้ว');
-            }
+            isUser = true;
+            // if (_image == null) {
+            //   setState(() {
+            //     text = '';
+            //   });
+            // } else {
+            //   print('ถ่ายรูปแล้ว');
+            // }
+            setState(() {
+              if (_currentStep < 3 - 1) {
+                _currentStep += 1;
+              } else {
+                _currentStep = 0;
+              }
+            });
           }
+        }
+        if (isUser == true) {
+          print('มีข้อมูลผู้ใช้ในระบบ');
+        } else {
+          _showAlertnouser(context);
         }
       }
     }
@@ -802,6 +854,20 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
   //     });
   _showAlertselect(context) async {
     Alert(context: context, content: Text('กรุณาเลือกผู้รับ'), buttons: [
+      DialogButton(
+          color: Colors.green[300],
+          child: Text(
+            'ตกลง',
+            style: TextStyle(fontSize: 24, color: Colors.white),
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          })
+    ]).show();
+  }
+
+  _showAlertnouser(context) async {
+    Alert(context: context, content: Text('ไม่พบข้อมูลผู้ใช้'), buttons: [
       DialogButton(
           color: Colors.green[300],
           child: Text(
