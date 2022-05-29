@@ -13,6 +13,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:numeric_keyboard/numeric_keyboard.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:http/http.dart' as http;
+import 'package:smartparcelbox/Widget/dialog/dialog_loadding.dart';
 import 'package:smartparcelbox/Widget/search_widget.dart';
 import 'package:smartparcelbox/models/deviceIdmodel.dart';
 import 'package:smartparcelbox/models/getnameimagemodel.dart';
@@ -119,11 +120,10 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
     setState(() => this.users = users);
   }
 
-  void getNameImage() async {
+  getNameImage() async {
     var url = Uri.parse(connect().url + "api/device/log/add");
     var random = Random();
     var valueRandom = random.nextInt(900000) + 100000;
-    print(num);
     var body = {
       "group_id": box.read('group_id').toString(),
       "device_id": box.read('device_id').toString(),
@@ -193,9 +193,9 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
         img.Image? imageTemp = img.decodeImage(_image!.readAsBytesSync());
         img.Image resizedImg = img.copyResize(imageTemp!, height: 500);
 
-        var request = new http.MultipartRequest(
+        var request = http.MultipartRequest(
             'POST', Uri.parse(connect().url + "upload-images/upload-image/${namefile}"));
-        var multipartFile = new http.MultipartFile.fromBytes(
+        var multipartFile = http.MultipartFile.fromBytes(
           'file',
           img.encodeJpg(resizedImg),
           filename: 'resized_image.jpg',
@@ -207,17 +207,14 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
         print(response.statusCode);
         if (response.statusCode == 200) {
           print('อัพโหลดรูปภาพสำเร็จ');
-
-          print(response);
           setState(() {
             isloaddinguploadimage = false;
           });
-          openLocker();
+          await openLocker();
         } else {
           setState(() {
             isloaddinguploadimage = false;
           });
-
           print(response.statusCode);
           print('อัพโหลดรูปภาพไม่สำเร็จ');
         }
@@ -230,7 +227,7 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
     }
   }
 
-  void openLocker() async {
+  openLocker() async {
     var device_id = await box.read("device_id");
     try {
       print('device_id ===> ## $device_id');
@@ -256,14 +253,14 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
     }
   }
 
-  void getDeviceStatus() async {
+  getDeviceStatus() async {
     var device_id = await box.read('device_id');
     print('device_id ===> ## $device_id');
     var getdeviceID =
         Uri.parse(connect().url + "api/device/group/device_id/${device_id}");
     try {
       var oneSec = const Duration(seconds: 1);
-      _timer = new Timer.periodic(
+      _timer = Timer.periodic(
         oneSec,
         (Timer timer) async {
           var response = await http.get(getdeviceID);
@@ -288,7 +285,7 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
     }
   }
 
-  void _backupgetDeviceStatus() async {
+  _backupgetDeviceStatus() async {
     var device_id = await box.read('device_id');
     print('device_id ===> ## $device_id');
     var getdeviceID =
@@ -365,10 +362,10 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        iconTheme: IconThemeData(
+        iconTheme: const IconThemeData(
           color: Colors.black54,
         ),
-        title: Text(
+        title: const Text(
           'การฝากของ',
           style: TextStyle(color: Colors.black54),
         ),
@@ -379,92 +376,89 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
       body: SafeArea(
         child: isloading == false
             ? Column(
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Stepper(
-                      physics: ClampingScrollPhysics(),
-                      type: StepperType.horizontal,
-                      controlsBuilder: (BuildContext context, ControlsDetails controls) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: <Widget>[
-                              if (_currentStep == 0)
-                                // ElevatedButton(
-                                //   style: ElevatedButton.styleFrom(
-                                //     primary: Colors.green[300],
-                                //   ),
-                                //   onPressed: () {
-                                //     if (!nameselect.isEmpty) {
-                                //       setState(() {
-                                //         if (_currentStep < 3 - 1) {
-                                //           _currentStep += 1;
-                                //         } else {
-                                //           _currentStep = 0;
-                                //         }
-                                //       });
-                                //     } else {
-                                //       print('กรุณาเลือกผู้รับ');
-                                //       _showAlertselect(context);
-                                //     }
-                                //   },
-                                //   child: const Text('ถัดไป'),
-                                // ),
-                                // if (_currentStep != 0)
-                                //   TextButton(
-                                //     onPressed: controls.onStepCancel,
-                                //     child: const Text(
-                                //       'BACK',
-                                //       style: TextStyle(color: Colors.grey),
-                                //     ),
-                                //   ),
-                                if (_currentStep == 1)
-                                  ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      primary: Colors.green[300],
-                                    ),
-                                    onPressed: () {
-                                      if (_image != null) {
-                                        print('บันทึกข้อมูล');
-                                        setState(() {
-                                          if (_currentStep < 3 - 1) {
-                                            _currentStep += 1;
-                                          } else {
-                                            _currentStep = 0;
-                                          }
-                                        });
-                                      } else {
-                                        print('กรุณาถ่ายรูป');
-                                        _showAlertTakePhoto(context);
-                                      }
-                                    },
-                                    child: const Text('ถัดไป'),
-                                  ),
-                              if (_currentStep == 2)
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(primary: Colors.red),
-                                  onPressed: () {
-                                    print('DONE');
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text('ยกเลิกการฝาก'),
-                                ),
-                            ],
+                  const SizedBox(height: 50),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25),
+                    child: Container(
+                      padding: EdgeInsets.all(15),
+                      height: 50,
+                      decoration: BoxDecoration(
+                          color: Colors.grey[400],
+                          borderRadius: BorderRadius.circular(20)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            text.isNotEmpty ? text : 'กรุณากรอกเบอร์โทรศัพท์',
+                            style: TextStyle(fontSize: 16),
                           ),
-                        );
-                      },
-                      currentStep: _currentStep,
-                      steps: [
-                        _buildStep1(),
-                        _buildStep2(size),
-                        _buildStep3(size, context),
-                      ],
+                          InkWell(
+                              onTap: () {
+                                setState(() {
+                                  text = '';
+                                });
+                              },
+                              child: Icon(Icons.close)),
+                        ],
+                      ),
                     ),
-                  )
+                  ),
+                  const SizedBox(height: 40),
+                  // Container(
+                  //   width: double.infinity,
+                  //   child: OtpTextField(
+                  //     numberOfFields: 10,
+                  //     textStyle: TextStyle(fontSize: 14),
+                  //     borderColor: Color(0xFF512DA8),
+                  //     fieldWidth: 24,
+                  //     //set to true to show as box or false to show as dash
+                  //     showFieldAsBox: false,
+                  //     //runs when a code is typed in
+                  //     onCodeChanged: (String code) {
+                  //       print(code);
+                  //       //handle validation or checks here
+                  //     },
+                  //     //runs when every textfield is filled
+                  //     onSubmit: (String verificationCode) {
+                  //       // showDialog(
+                  //       //     context: context,
+                  //       //     builder: (context) {
+                  //       //       return AlertDialog(
+                  //       //         title: Text("Verification Code"),
+                  //       //         content: Text('Code entered is $verificationCode'),
+                  //       //       );
+                  //       //     });
+                  //       setState(() {
+                  //         text = verificationCode;
+                  //       });
+                  //     }, // end onSubmit
+                  //   ),
+                  // ),
+                  NumericKeyboard(
+                      onKeyboardTap: _onKeyboardTap,
+                      textColor: Colors.blueAccent,
+                      rightButtonFn: () {
+                        setState(() {
+                          text = text.substring(0, text.length - 1);
+                        });
+                      },
+                      rightIcon: const Icon(
+                        Icons.backspace,
+                        color: Colors.blueAccent,
+                      ),
+                      leftButtonFn: () {
+                        print('left button clicked');
+                      },
+                      leftIcon: const Icon(
+                        Icons.check,
+                        color: Colors.transparent,
+                      ),
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween),
                 ],
               )
-            : Center(
+            : const Center(
                 child: CircularProgressIndicator(),
               ),
       ),
@@ -704,81 +698,7 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
                   height: 50,
                 ),
                 //  buildSearch(),
-                Container(
-                  padding: EdgeInsets.all(15),
-                  height: 50,
-                  decoration: BoxDecoration(
-                      color: Colors.grey[400], borderRadius: BorderRadius.circular(20)),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        text.isNotEmpty ? text : 'กรุณากรอกเบอร์โทรศัพท์',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      InkWell(
-                          onTap: () {
-                            setState(() {
-                              text = '';
-                            });
-                          },
-                          child: Icon(Icons.close)),
-                    ],
-                  ),
-                ),
-                const SizedBox(
-                  height: 30,
-                ),
-                // Container(
-                //   width: double.infinity,
-                //   child: OtpTextField(
-                //     numberOfFields: 10,
-                //     textStyle: TextStyle(fontSize: 14),
-                //     borderColor: Color(0xFF512DA8),
-                //     fieldWidth: 24,
-                //     //set to true to show as box or false to show as dash
-                //     showFieldAsBox: false,
-                //     //runs when a code is typed in
-                //     onCodeChanged: (String code) {
-                //       print(code);
-                //       //handle validation or checks here
-                //     },
-                //     //runs when every textfield is filled
-                //     onSubmit: (String verificationCode) {
-                //       // showDialog(
-                //       //     context: context,
-                //       //     builder: (context) {
-                //       //       return AlertDialog(
-                //       //         title: Text("Verification Code"),
-                //       //         content: Text('Code entered is $verificationCode'),
-                //       //       );
-                //       //     });
-                //       setState(() {
-                //         text = verificationCode;
-                //       });
-                //     }, // end onSubmit
-                //   ),
-                // ),
-                NumericKeyboard(
-                    onKeyboardTap: _onKeyboardTap,
-                    textColor: Colors.blueAccent,
-                    rightButtonFn: () {
-                      setState(() {
-                        text = text.substring(0, text.length - 1);
-                      });
-                    },
-                    rightIcon: Icon(
-                      Icons.backspace,
-                      color: Colors.blueAccent,
-                    ),
-                    leftButtonFn: () {
-                      print('left button clicked');
-                    },
-                    leftIcon: Icon(
-                      Icons.check,
-                      color: Colors.transparent,
-                    ),
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween),
+
                 // Container(
                 //   height: size.height * 0.5,
                 //   child: ListView.builder(
@@ -810,27 +730,36 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
         final users = await getUsers(text);
         for (var item in users) {
           if (item.userTel.toString() == text.toString()) {
-            isUser = true;
-            // if (_image == null) {
-            //   setState(() {
-            //     text = '';
-            //   });
-            // } else {
-            //   print('ถ่ายรูปแล้ว');
-            // }
             setState(() {
-              if (_currentStep < 3 - 1) {
-                _currentStep += 1;
-              } else {
-                _currentStep = 0;
-              }
+              isUser = true;
+              nameselect = item.userName;
+              box.write('user_id', item.userId.toString());
             });
           }
         }
         if (isUser == true) {
           print('มีข้อมูลผู้ใช้ในระบบ');
+
+          await getImage().then((value) => print('getimage ==> $value'));
+          setState(() {
+            text = '';
+          });
+          if (_image == null) {
+          } else {
+            DialogLoading.show(context);
+            await getNameImage();
+            DialogLoading.hide(context);
+            print('ถ่ายรูปแล้ว');
+
+            //  DialogLoading.show(context);
+            await uploadImage();
+            // DialogLoading.hide(context);
+          }
         } else {
           _showAlertnouser(context);
+          setState(() {
+            text = '';
+          });
         }
       }
     }
@@ -880,19 +809,19 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
     ]).show();
   }
 
-  _showAlertTakePhoto(context) async {
-    Alert(context: context, content: Text('กรุณาถ่ายรูป'), buttons: [
-      DialogButton(
-          color: Colors.green[300],
-          child: Text(
-            'ตกลง',
-            style: TextStyle(fontSize: 24, color: Colors.white),
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-          })
-    ]).show();
-  }
+  // _showAlertTakePhoto(context) async {
+  //   Alert(context: context, content: Text('กรุณาถ่ายรูป'), buttons: [
+  //     DialogButton(
+  //         color: Colors.green[300],
+  //         child: Text(
+  //           'ตกลง',
+  //           style: TextStyle(fontSize: 24, color: Colors.white),
+  //         ),
+  //         onPressed: () {
+  //           Navigator.pop(context);
+  //         })
+  //   ]).show();
+  // }
 
   _showAlertSave(context) async {
     Alert(context: context, content: Text('ต้องการบันทึกข้อมูล'), buttons: [
@@ -929,32 +858,41 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
     ]).show();
   }
 
-  Widget buildBook(UserList user) => ListTile(
-        title: Text('Name: ' + user.userName),
-        onTap: () {
-          print('Name: ' + user.userName + ' Id: ' + user.userId.toString());
-          setState(() {
-            nameselect = user.userName;
-            box.write('user_id', user.userId.toString());
-          });
-        },
-        subtitle: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [Text('Email: ' + user.userEmail), Text('Tel: ' + user.userTel)],
-        ),
-      );
+  // Widget buildBook(UserList user) => ListTile(
+  //       title: Text('Name: ' + user.userName),
+  //       onTap: () {
+  //         print('Name: ' + user.userName + ' Id: ' + user.userId.toString());
+  //         setState(() {
+  //           nameselect = user.userName;
+  //           box.write('user_id', user.userId.toString());
+  //         });
+  //       },
+  //       subtitle: Column(
+  //         mainAxisAlignment: MainAxisAlignment.start,
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [Text('Email: ' + user.userEmail), Text('Tel: ' + user.userTel)],
+  //       ),
+  //     );
 
   _showDialogOpenLocker(context) async {
     Alert(
+        onWillPopActive: true,
+        closeFunction: () {},
+        closeIcon: SizedBox(),
         context: context,
         title: "ประตูล็อคเกอร์เปิดแล้ว!",
         content: Column(
-          children: [
-            const Text('นำของเข้าเรียบร้อยแล้วกรุณาปิดประตูล็อคเกอร์!'),
+          children: const [
+            SizedBox(
+              height: 10,
+            ),
+            Text(
+              '"กรุณาใส่สินค้าในตู้และปิดตู้ให้สนิท"',
+              style: TextStyle(fontSize: 18),
+            ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: const Icon(
+              padding: EdgeInsets.all(8.0),
+              child: Icon(
                 Icons.lock_open,
                 size: 80,
               ),
@@ -973,7 +911,7 @@ class _DepositlockerScreenState extends State<DepositlockerScreen> {
                     context, MaterialPageRoute(builder: (context) => HomeScreen()));
               }
             },
-            child: Text(
+            child: const Text(
               "ยกเลิกการฝาก",
               style: TextStyle(color: Colors.white, fontSize: 20),
             ),
