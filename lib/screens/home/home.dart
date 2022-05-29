@@ -64,14 +64,10 @@ class _HomeScreenState extends State<HomeScreen> {
       print('url ADS ===> ### $urlads');
       // _videoPlayerController1 = VideoPlayerController.network(
       //     "https://assets.mixkit.co/videos/preview/mixkit-daytime-city-traffic-aerial-view-56-large.mp4");
-      _videoPlayerController1 =
-          VideoPlayerController.network(urlads.toString());
-      _videoPlayerController2 =
-          VideoPlayerController.network(urlads.toString());
-      await Future.wait([
-        _videoPlayerController1.initialize(),
-        _videoPlayerController2.initialize()
-      ]);
+      _videoPlayerController1 = VideoPlayerController.network(urlads.toString());
+      _videoPlayerController2 = VideoPlayerController.network(urlads.toString());
+      await Future.wait(
+          [_videoPlayerController1.initialize(), _videoPlayerController2.initialize()]);
       // await _createChewieController1();
       // await _createChewieController2();
       _createChewieController1();
@@ -160,8 +156,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             height: double.infinity,
                             width: double.infinity,
                             child: _chewieController2 != null &&
-                                    _chewieController2!.videoPlayerController
-                                        .value.isInitialized
+                                    _chewieController2!
+                                        .videoPlayerController.value.isInitialized
                                 ? Chewie(
                                     controller: _chewieController2!,
                                   )
@@ -187,8 +183,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             height: double.infinity,
                             width: double.infinity,
                             child: _chewieController1 != null &&
-                                    _chewieController1!.videoPlayerController
-                                        .value.isInitialized
+                                    _chewieController1!
+                                        .videoPlayerController.value.isInitialized
                                 ? Chewie(
                                     controller: _chewieController1!,
                                   )
@@ -242,8 +238,7 @@ class _HomeScreenState extends State<HomeScreen> {
       var _group_id = prefs.get('group_id');
       print('group_id ==> ${_group_id}');
 
-      var url =
-          Uri.parse(connect().url + "api/device/group/group_id/${_group_id}");
+      var url = Uri.parse(connect().url + "api/device/group/group_id/${_group_id}");
       var response = await http.get(url);
       if (response.statusCode == 200) {
         setState(() {
@@ -262,8 +257,7 @@ class _HomeScreenState extends State<HomeScreen> {
       var _group_id = prefs.get('group_id');
       // print('group_id ==> ${_group_id}');
 
-      var url =
-          Uri.parse(connect().url + "api/device/group/group_id/${_group_id}");
+      var url = Uri.parse(connect().url + "api/device/group/group_id/${_group_id}");
       var response = await http.get(url);
       if (response.statusCode == 200) {
         // print('getDeviceNew == 200');
@@ -284,8 +278,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       print("Function ---> readDeviceId");
       print('ID device ===> $deviceId');
-      var url =
-          Uri.parse(connect().url + "api/device/group/device_id/${deviceId}");
+      var url = Uri.parse(connect().url + "api/device/group/device_id/${deviceId}");
       print(url);
       var response = await http.get(url);
       if (response.statusCode == 200) {
@@ -313,7 +306,10 @@ class _HomeScreenState extends State<HomeScreen> {
             "assets/images/locker.png",
             width: 100,
           ),
-          Text('ต้องการฝากของช่อง $lockname '),
+          Text(
+            'ต้องการฝากของช่อง $lockname ',
+            style: TextStyle(fontSize: 18),
+          ),
         ],
       ),
       buttons: [
@@ -327,10 +323,8 @@ class _HomeScreenState extends State<HomeScreen> {
               box.write('group_id', group_id);
               box.write('device_id', device_id);
               Navigator.of(context).pop();
-              Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => DepositlockerScreen()))
+              Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => DepositlockerScreen()))
                   .then((value) {
                 setState(() {
                   _start = 300;
@@ -364,12 +358,10 @@ class _HomeScreenState extends State<HomeScreen> {
       content: Column(
         children: <Widget>[
           TextFormField(
-            decoration:
-                InputDecoration(labelText: "Password", icon: Icon(Icons.lock)),
+            decoration: InputDecoration(labelText: "Password", icon: Icon(Icons.lock)),
             maxLines: 1,
             onChanged: (value) => _password = value,
-            validator: (value) =>
-                value!.trim().isEmpty ? 'กรุณากรอก Password' : null,
+            validator: (value) => value!.trim().isEmpty ? 'กรุณากรอก Password' : null,
           ),
         ],
       ),
@@ -445,8 +437,9 @@ class _HomeScreenState extends State<HomeScreen> {
     Permission.camera.status.then((value) {
       print('cameraStatus ==> $value');
       if (value.isDenied) {
-        Permission.camera.request().then(
-            (value) => print('value after permisstion Camera ==> $value'));
+        Permission.camera
+            .request()
+            .then((value) => print('value after permisstion Camera ==> $value'));
       } else {
         return;
       }
@@ -547,8 +540,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Container(
                     child: GridView.builder(
                         itemCount: _deviceModel!.data.message.length,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2),
+                        gridDelegate:
+                            SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
                         padding: const EdgeInsets.all(10.0),
                         itemBuilder: (context, index) {
                           return InkWell(
@@ -564,18 +557,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                   'Device ===> ## ${_deviceModel!.data.message[index].deviceId}');
                               print(
                                   'deviceStatus ===> ###  ${_deviceModel!.data.message[index].deviceStatus}');
-                              if (_deviceModel!
-                                          .data.message[index].deviceSuccess
+                              if (_deviceModel!.data.message[index].deviceSuccess
                                           .toString() ==
                                       '1' &&
                                   _deviceModel!.data.message[index].deviceStatus
                                           .toString() !=
                                       '0') {
-                                readDeviceId(
-                                    _deviceModel!.data.message[index].deviceId);
+                                readDeviceId(_deviceModel!.data.message[index].deviceId);
                               }
-                              if (_deviceModel!
-                                      .data.message[index].deviceSuccess
+                              if (_deviceModel!.data.message[index].deviceSuccess
                                       .toString() ==
                                   '0') {
                                 _showDepositDialog(
@@ -588,12 +578,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: Padding(
                               padding: const EdgeInsets.all(5.0),
                               child: Card(
-                                color: _deviceModel!.data.message[index]
-                                                .deviceSuccess
+                                color: _deviceModel!.data.message[index].deviceSuccess
                                                 .toString() !=
                                             '0' &&
-                                        _deviceModel!.data.message[index]
-                                                .deviceStatus !=
+                                        _deviceModel!.data.message[index].deviceStatus !=
                                             '0'
                                     ? Colors.red[400]
                                     : Colors.blue[50],
